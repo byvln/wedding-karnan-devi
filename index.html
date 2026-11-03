@@ -181,10 +181,10 @@
             <i id="music-icon" class="fa-solid fa-compact-disc text-base animate-spin" style="animation-duration: 4s;"></i>
         </button>
 
-        <!-- Tag Audio lokal Denok.mp4 -->
-        <audio id="bg-music" loop preload="auto">
-            <source src="final1.mp4" type="audio/mpeg">
-        </audio>
+        <!-- Audio lokal -->
+            <audio id="bg-music" loop preload="auto" playsinline>
+                <source src="final1.mp4" type="audio/mp4">
+            </audio>
 
 
         <!-- ========================================== -->
@@ -575,22 +575,72 @@
     }
 
     // 3. Toggle Play/Pause Musik
-    let isPlaying = true;
-    function toggleMusic() {
-        const audio = document.getElementById('bg-music');
-        const icon = document.getElementById('music-icon');
+    // 2. Buka Undangan & Putar Audio
+function openInvitation() {
+    const cover = document.getElementById('cover-page');
+    const musicBtn = document.getElementById('music-btn');
+    const audio = document.getElementById('bg-music');
+    const icon = document.getElementById('music-icon');
 
-        if (isPlaying) {
-            audio.pause();
-            icon.classList.remove('animate-spin');
-            icon.classList.replace('fa-compact-disc', 'fa-volume-xmark');
-        } else {
-            audio.play();
-            icon.classList.add('animate-spin');
-            icon.classList.replace('fa-volume-xmark', 'fa-compact-disc');
-        }
-        isPlaying = !isPlaying;
+    // Tutup halaman cover
+    cover.classList.add('hidden-cover');
+
+    // Tampilkan tombol musik
+    musicBtn.classList.remove('hidden');
+
+    // Perbarui tampilan ikon
+    icon.classList.remove('fa-volume-xmark');
+    icon.classList.add('fa-compact-disc', 'animate-spin');
+
+    // Refresh animasi AOS
+    setTimeout(() => {
+        AOS.refresh();
+    }, 300);
+
+    // Putar musik setelah pengguna menekan tombol
+    audio.volume = 0.7;
+
+    const playPromise = audio.play();
+
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            isPlaying = true;
+        }).catch(error => {
+            isPlaying = false;
+            console.log("Audio belum dapat diputar:", error);
+        });
     }
+}
+
+// 3. Toggle Play/Pause Musik
+let isPlaying = false;
+
+function toggleMusic() {
+    const audio = document.getElementById('bg-music');
+    const icon = document.getElementById('music-icon');
+
+    if (!audio || !icon) return;
+
+    if (isPlaying) {
+        audio.pause();
+        isPlaying = false;
+
+        icon.classList.remove('animate-spin', 'fa-compact-disc');
+        icon.classList.add('fa-volume-xmark');
+
+    } else {
+        audio.play().then(() => {
+            isPlaying = true;
+
+            icon.classList.remove('fa-volume-xmark');
+            icon.classList.add('fa-compact-disc', 'animate-spin');
+
+        }).catch(error => {
+            console.log("Audio gagal diputar:", error);
+        });
+    }
+}
+    
 
     // 4. Countdown Timer Target: 15 November 2026
     const targetDate = new Date("November 15, 2026 08:00:00").getTime();
